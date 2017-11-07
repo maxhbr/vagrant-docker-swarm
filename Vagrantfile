@@ -41,6 +41,11 @@ Vagrant.configure("2") do |config|
       i.vm.hostname = "manager"
       i.vm.network "private_network", ip: "#{manager_ip}"
       i.vm.provision "shell", path: "./provision.sh"
+      i.vm.provision "shell", inline: <<-SHELL
+set -xe
+[[ -f /vagrant/swarm_id_rsa ]] || ssh-keygen -t rsa -f /vagrant/swarm_id_rsa -N ""
+cat /vagrant/swarm_id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
+SHELL
       if File.file?("./hosts") 
         i.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
         i.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
